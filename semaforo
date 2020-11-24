@@ -1,0 +1,96 @@
+int LEDVERDE = 0; // Led verde a GPIO0
+int LEDAMARILLO = 2; // Led amarillo a GPIO2
+int LEDROJO = 14; //Led rojo a GPIO14
+int SelectA = 16; // PIN11 del multiplexor a GPIO16 (A)
+int SelectB = 5; // PIN10 del multiplexor a GPIO5 (B)
+int SelectC = 4; // PIN9 del multiplexor a GPIO4 (C)
+int TRIG = 12; // TRIG a GPIO12
+int ECO = 13; // ECO a GPIO13
+int duracion; 
+int distancia=0;
+char serial = 0;
+
+void setup() {
+  pinMode(LEDVERDE,OUTPUT); //Defino al led verde como salida 
+  pinMode(LEDAMARILLO,OUTPUT); //Defino al led amarillo como salida
+  pinMode(LEDROJO,OUTPUT); //Defino al led rojo como salida
+  pinMode(SelectA,OUTPUT); //Defino a A como salida
+  pinMode(SelectB,OUTPUT); //Defino a B como salida
+  pinMode(SelectC,OUTPUT); //Defino a C salida
+  pinMode(TRIG,OUTPUT); //Defino pin TRIG del sensor como salida
+  pinMode(ECO,INPUT); //Defino pin ECO como entrada
+  Serial.begin(9600); //Para ver en el monitor serie, 9600 es por la tasa de la comunicacion.
+}
+
+void medicion (){
+
+  digitalWrite(TRIG,HIGH); // Pongo en 1 al pin TRIG del sensor (disparo del ultrasonido)
+  delay(1); // esperamos 1 ms 
+  digitalWrite(TRIG,LOW); // Pongo en 0 al pin TRIG del sensor
+  duracion=pulseIn(ECO,HIGH);
+  distancia=duracion/58.2;
+  Serial.print("El valor del sensor es =  "); // Muestro lo que esta entre comillas en el monitor serie
+  Serial.println(distancia);
+  delay(1);
+  
+}
+
+void loop() {
+
+
+ medicion();
+ if(distancia<10) { // El ciclo comienza cuando la distancia sea mayor a 30cm
+    
+    digitalWrite(SelectA,HIGH); // Con A=1 B=0 C=0 ELijo en canal 1, pin Nº 14.
+    digitalWrite(SelectB,LOW); 
+    digitalWrite(SelectC,LOW);
+    digitalWrite(LEDVERDE,HIGH);
+    digitalWrite(LEDROJO,LOW); // Con LEDROOJ=0 LEDVERDE=1 El led verde se prende
+    delay(10);
+    digitalWrite(SelectA,LOW); // Con A=0 B=0 C=0 ELijo en canal 0, pin Nº 13. 
+    digitalWrite(SelectB,LOW);
+    digitalWrite(SelectC,LOW);
+    digitalWrite(LEDROJO,HIGH); // Con LEDROOJ=1 LEDVERDE=0 El led rojo se prende    
+    digitalWrite(LEDVERDE,LOW);
+    digitalWrite(LEDAMARILLO,LOW);
+    delay(10);  
+   }
+  
+  else if(distancia<20 && distancia>10) {
+ 
+    digitalWrite(SelectA,HIGH); // Con A=1 B=0 C=0 ELijo en canal 1, pin Nº 14.
+    digitalWrite(SelectB,LOW);
+    digitalWrite(SelectC,LOW);
+    digitalWrite(LEDAMARILLO,HIGH); // Con LEDAMRILLO=1 LEDROOJ=0 LEDVERDE=0 El led amarillo se prende
+    digitalWrite(LEDROJO,LOW);
+    digitalWrite(LEDVERDE,LOW);  
+    delay(10);
+    digitalWrite(SelectA,LOW); // Con A=0 B=0 C=0 ELijo en canal 0, pin Nº 13.
+    digitalWrite(SelectB,LOW);
+    digitalWrite(SelectC,LOW);
+    digitalWrite(LEDAMARILLO,HIGH); //Con LEDAMRILLO=1 LEDROOJ=0 LEDVERDE=0 El led amarillo se prende
+    digitalWrite(LEDROJO,LOW);    
+    digitalWrite(LEDVERDE,LOW);
+    delay(10); // Esperamos 10 ms y vuelve a empezar el ciclo mientras la distancia este entre 30cm y 20cm 
+    //amarillo bien con este delay y con ultimo delay del distanciometro
+   } 
+
+  else if (distancia>20) { // El ciclo comienza cuando la distancia este entre 30cm y 20cm
+    digitalWrite(SelectA,HIGH); // Con A=1 B=0 C=0 ELijo en canal 1, pin Nº 14.
+    digitalWrite(SelectB,LOW);
+    digitalWrite(SelectC,LOW);
+    digitalWrite(LEDROJO,HIGH);
+    digitalWrite(LEDVERDE,LOW);
+    digitalWrite(LEDAMARILLO,LOW); // Con LEDAMRILLO=0 LEDROOJ=1 LEDVERDE=0 El led rojo se prende  
+    delay(5);
+    digitalWrite(SelectA,LOW); // Con A=0 B=0 C=0 ELijo en canal 0, pin Nº 13.
+    digitalWrite(SelectB,LOW);
+    digitalWrite(SelectC,LOW);
+    digitalWrite(LEDVERDE,HIGH);
+    digitalWrite(LEDROJO,LOW);
+    digitalWrite(LEDAMARILLO,HIGH); //Con LEDAMRILLO=0 LEDROOJ=0 LEDVERDE=1 El led verde se prende    
+    delay(5);  
+  }
+    
+
+}
